@@ -1,0 +1,7 @@
+<h1>My Movies</h1>
+
+<ul>
+    {% for movie in movies %}
+    <li><h2>{{movie.title}}</h2> <p>{{movie.director}} - {{movie.year}} </li>
+    {% endfor %}
+</ul>
