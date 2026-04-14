@@ -17,11 +17,14 @@ def movie_list(request):
     return render(request, "movies/movie_list.html", {"movies": movies})
 
 
+@login_required
 def add_movie(request):
     if request.method == "POST":
         form = MovieForm(request.POST)
         if form.is_valid():
-            form.save()
+            movie = form.save(commit=False)
+            movie.owner = request.user
+            movie.save()
             return redirect("movie_list")
     else:
         form = MovieForm()
