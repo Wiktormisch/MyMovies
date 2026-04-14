@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Movie (models.Model):
@@ -14,6 +15,7 @@ class Movie (models.Model):
         max_length=10, choices=STATUS_CHOICES, default="to_watch")
     created_at = models.DateField(auto_now_add=True, blank=True)
     updated_at = models.DateField(auto_now=True, blank=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
 

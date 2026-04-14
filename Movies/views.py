@@ -2,11 +2,14 @@ from django.shortcuts import render
 from .models import Movie
 from .forms import MovieForm
 from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def movie_list(request):
     status = request.GET.get("status")
-    movies = Movie.objects.all()
+    movies = Movie.objects.filter(owner=request.user)
 
     if status:
         movies = movies.filter(status=status)
@@ -14,11 +17,14 @@ def movie_list(request):
     return render(request, "movies/movie_list.html", {"movies": movies})
 
 
+@login_required
 def add_movie(request):
     if request.method == "POST":
         form = MovieForm(request.POST)
         if form.is_valid():
-            form.save()
+            movie = form.save(commit=False)
+            movie.owner = request.user
+            movie.save()
             return redirect("movie_list")
     else:
         form = MovieForm()
@@ -52,3 +58,14 @@ def movie_edit(request, pk):
         form = MovieForm(instance=movie)
 
     return render(request, "movies/edit_movie.html", {"form": form})
+
+
+def register(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("login")
+    else:
+        form = UserCreationForm
+    return render(request, "registration/register.html", {"form": form})
