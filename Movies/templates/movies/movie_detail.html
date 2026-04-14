@@ -1,0 +1,12 @@
+<div>
+    <h1>{{ movie.title }}</h1>
+    <div>
+        <p>Rezyser: {{ movie.director }}</p>
+        <p>Wydany: {{ movie.year }}</p>
+    {% if movie.status == "to_watch" %}
+        <p>Chcesz go zobaczyc</p>
+    {% else %}
+        <h2>Obejrzany</h2>
+    {% endif %}
+    </div>
+</div>

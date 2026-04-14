@@ -5,6 +5,6 @@
 <a href="{% url 'movie_list' %}">Wszystkie filmy</a>
 <ul>
     {% for movie in movies %}
-    <li><h2>{{movie.title}}</h2> <p>{{movie.director}} - {{movie.year}} </li>
+    <li><h2>{{ movie.title }}</h2> <p>{{ movie.director }} - {{ movie.year }} </li>
     {% endfor %}
 </ul>
