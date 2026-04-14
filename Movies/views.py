@@ -3,11 +3,13 @@ from .models import Movie
 from .forms import MovieForm
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def movie_list(request):
     status = request.GET.get("status")
-    movies = Movie.objects.all()
+    movies = Movie.objects.filter(owner=request.user)
 
     if status:
         movies = movies.filter(status=status)
