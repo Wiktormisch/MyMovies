@@ -1,8 +1,20 @@
 <h1>My Movies</h1>
+<div>
+    <div> Witaj uzytkowniku </div>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Wyloguj</button>
+    </form>
+</div>
 
-<a href="?status=watched">Obejrzane</a>
-<a href="?status=to_watch">Do obejrzenia</a>
-<a href="{% url 'movie_list' %}">Wszystkie filmy</a>
+<p>
+    <a href="?status=watched">Obejrzane</a>
+    <a href="?status=to_watch">Do obejrzenia</a>
+    <a href="{% url 'movie_list' %}">Wszystkie filmy</a>
+</p>
+<p> 
+    <a href="{% url 'add_movie' %}">Dodaj film</a>
+</p>
 <ul>
   {% for movie in movies %}
   <li>
