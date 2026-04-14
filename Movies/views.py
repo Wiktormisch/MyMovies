@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Movie
 from .forms import MovieForm
 from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.forms import UserCreationForm
 
 
 def movie_list(request):
@@ -55,4 +56,11 @@ def movie_edit(request, pk):
 
 
 def register(request):
-    pass
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("login")
+    else:
+        form = UserCreationForm
+    return render(request, "registration/register.html", {"form": form})
