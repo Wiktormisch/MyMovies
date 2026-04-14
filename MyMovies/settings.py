@@ -99,6 +99,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Login
+
+LOGIN_REDIRECT_URL = "movie_list"
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

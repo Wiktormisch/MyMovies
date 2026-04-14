@@ -28,6 +28,6 @@ urlpatterns = [
     path("movies/<int:pk>/delete", movie_delete, name="movie_delete"),
     path("movies/<int:pk>/edit", movie_edit, name="movie_edit"),
     path("login/", auth_views.LoginView.as_view(), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("logout/", auth_views.LogoutView.as_view(next_page='/login/'), name="logout"),
     path("register/", register, name="register"),
 ]
