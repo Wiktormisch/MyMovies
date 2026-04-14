@@ -1,0 +1,7 @@
+<h1>Dodawnie filmu</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="sumbit">Dodaj</button>
+</form>
