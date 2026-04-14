@@ -4,7 +4,12 @@ from .forms import MovieForm
 
 
 def movie_list(request):
+    status = request.GET.get("status")
     movies = Movie.objects.all()
+
+    if status:
+        movies = movies.filter(status=status)
+
     return render(request, "movies/movie_list.html", {"movies": movies})
 
 
