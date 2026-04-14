@@ -11,6 +11,12 @@
     </div>
 </div>
 <div>
+    <form method="post" action="{% url 'movie_edit' movie.pk %}">
+        {% csrf_token %}
+        <button type="submit">EDYTUJ</button>
+    </form>
+
+
     <form method="post" action="{% url 'movie_delete' movie.pk %}">
         {% csrf_token %}
         <button type="submit">USUŃ FILM</button>
