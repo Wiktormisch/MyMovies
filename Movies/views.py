@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Movie
 from .forms import MovieForm
+from django.shortcuts import get_object_or_404
 
 
 def movie_list(request):
@@ -22,3 +23,9 @@ def add_movie(request):
         form = MovieForm()
 
     return render(request, "movies/add_movie.html", {"form": form})
+
+
+def movie_detail(request, pk):
+    movie = get_object_or_404(Movie, pk=pk)
+
+    return render(request, "movies/movie_detail.html", {"movie": movie})
