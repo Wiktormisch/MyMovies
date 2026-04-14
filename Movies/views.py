@@ -52,3 +52,7 @@ def movie_edit(request, pk):
         form = MovieForm(instance=movie)
 
     return render(request, "movies/edit_movie.html", {"form": form})
+
+
+def register(request):
+    pass
