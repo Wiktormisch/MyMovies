@@ -1,0 +1,7 @@
+<h1>Edycja filmu</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="sumbit">Edytuj</button>
+</form>
