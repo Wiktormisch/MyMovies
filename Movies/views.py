@@ -43,9 +43,10 @@ def movie_detail(request, pk):
 
 def movie_delete(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
-    if request.method == "POST":
-        movie.delete()
-        return redirect("movie_list")
+    if movie.owner == request.user:
+        if request.method == "POST":
+            movie.delete()
+            return redirect("movie_list")
     return redirect("movie_detail", pk=pk)
 
 
