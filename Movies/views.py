@@ -32,32 +32,38 @@ def add_movie(request):
     return render(request, "movies/add_movie.html", {"form": form})
 
 
+@login_required
 def movie_detail(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
+    if movie.owner == request.user:
+        return render(request, "movies/movie_detail.html", {"movie": movie})
 
-    return render(request, "movies/movie_detail.html", {"movie": movie})
+    return redirect("movie_list")
 
 
 def movie_delete(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
-    if request.method == "POST":
-        movie.delete()
-        return redirect("movie_list")
+    if movie.owner == request.user:
+        if request.method == "POST":
+            movie.delete()
+            return redirect("movie_list")
     return redirect("movie_detail", pk=pk)
 
 
 def movie_edit(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
+    if movie.owner == request.user:
 
-    if request.method == "POST":
-        form = MovieForm(request.POST, instance=movie)
-        if form.is_valid():
-            form.save()
-            return redirect("movie_detail", pk=pk)
-    else:
-        form = MovieForm(instance=movie)
+        if request.method == "POST":
+            form = MovieForm(request.POST, instance=movie)
+            if form.is_valid():
+                form.save()
+                return redirect("movie_detail", pk=pk)
+        else:
+            form = MovieForm(instance=movie)
 
-    return render(request, "movies/edit_movie.html", {"form": form})
+        return render(request, "movies/edit_movie.html", {"form": form})
+    return redirect("movie_list")
 
 
 def register(request):
