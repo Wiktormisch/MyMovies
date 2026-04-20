@@ -52,16 +52,18 @@ def movie_delete(request, pk):
 
 def movie_edit(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
+    if movie.owner == request.user:
 
-    if request.method == "POST":
-        form = MovieForm(request.POST, instance=movie)
-        if form.is_valid():
-            form.save()
-            return redirect("movie_detail", pk=pk)
-    else:
-        form = MovieForm(instance=movie)
+        if request.method == "POST":
+            form = MovieForm(request.POST, instance=movie)
+            if form.is_valid():
+                form.save()
+                return redirect("movie_detail", pk=pk)
+        else:
+            form = MovieForm(instance=movie)
 
-    return render(request, "movies/edit_movie.html", {"form": form})
+        return render(request, "movies/edit_movie.html", {"form": form})
+    return redirect("movie_list")
 
 
 def register(request):
