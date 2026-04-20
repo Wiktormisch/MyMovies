@@ -32,10 +32,13 @@ def add_movie(request):
     return render(request, "movies/add_movie.html", {"form": form})
 
 
+@login_required
 def movie_detail(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
+    if movie.owner == request.user:
+        return render(request, "movies/movie_detail.html", {"movie": movie})
 
-    return render(request, "movies/movie_detail.html", {"movie": movie})
+    return redirect("movie_list")
 
 
 def movie_delete(request, pk):
