@@ -3,6 +3,12 @@
     <div>
         <p>Rezyser: {{ movie.director }}</p>
         <p>Wydany: {{ movie.year }}</p>
+        <div>
+            <h2>Tagi</h2>
+            {% for tag in movie.tags.all %}
+            <div>{{ tag.name }}</div>
+            {% endfor %}
+        </div>
     {% if movie.status == "to_watch" %}
         <p>Chcesz go zobaczyc</p>
     {% else %}
