@@ -10,9 +10,13 @@ from django.contrib.auth.decorators import login_required
 def movie_list(request):
     status = request.GET.get("status")
     movies = Movie.objects.filter(owner=request.user)
+    search = request.GET.get("search", "").strip()
 
     if status:
         movies = movies.filter(status=status)
+
+    if search:
+        movies = movies.filter(title__icontains=search)
 
     return render(request, "movies/movie_list.html", {"movies": movies})
 

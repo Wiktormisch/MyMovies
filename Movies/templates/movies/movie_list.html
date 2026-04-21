@@ -7,6 +7,13 @@
     </form>
 </div>
 
+<form method="GET">
+    <input type="text" name="search" placeholder="Szukaj po tytule..." value="{{ request.GET.search }}">
+    
+    <button type="submit">Filtruj</button>
+    <a href="{% url 'movie_list' %}">Resetuj</a>
+</form>
+
 <p>
     <a href="?status=watched">Obejrzane</a>
     <a href="?status=to_watch">Do obejrzenia</a>
