@@ -10,6 +10,13 @@
 <form method="GET">
     <input type="text" name="search" placeholder="Szukaj po tytule..." value="{{ request.GET.search }}">
     
+    <select name="tag" multiple>
+        <option value="">Wszystkie tagi</option>
+        {% for tag in tags %}
+            <option value="{{ tag.name }}">{{ tag.name }}</option>
+        {% endfor %}
+    </select>
+
     <button type="submit">Filtruj</button>
     <a href="{% url 'movie_list' %}">Resetuj</a>
 </form>

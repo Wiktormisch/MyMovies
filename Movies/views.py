@@ -11,6 +11,8 @@ def movie_list(request):
     status = request.GET.get("status")
     movies = Movie.objects.filter(owner=request.user)
     search = request.GET.get("search", "").strip()
+    tag = request.GET.get("tag")
+    tags = Tag.objects.all()
 
     if status:
         movies = movies.filter(status=status)
@@ -18,7 +20,12 @@ def movie_list(request):
     if search:
         movies = movies.filter(title__icontains=search)
 
-    return render(request, "movies/movie_list.html", {"movies": movies})
+    if tag:
+        movies = movies.filter(tags__name=tag)
+
+    return render(request, "movies/movie_list.html", {
+        "movies": movies,
+        "tags": tags})
 
 
 @login_required
