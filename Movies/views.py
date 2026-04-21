@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Movie
+from .models import Movie, Tag
 from .forms import MovieForm
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.forms import UserCreationForm
