@@ -1,4 +1,8 @@
-<h1>My Movies</h1>
+{% extends 'base.html' %}
+
+{% block title %}Moje Filmy - MyMovies{% endblock %}
+
+{% block content %}
 <div>
     <div> Witaj {{ user.username }} </div>
     <form method="post" action="{% url 'logout' %}">
@@ -41,3 +45,4 @@
   </li>
   {% endfor %}
 </ul>
+{% endblock %}
