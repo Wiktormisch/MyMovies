@@ -1,43 +1,169 @@
-<h1>My Movies</h1>
-<div>
-    <div> Witaj {{ user.username }} </div>
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit">Wyloguj</button>
-    </form>
+{% extends 'base.html' %}
+
+{% block title %}Moje Filmy - MyMovies{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- FILTRY -->
+    <div class="col-lg-3 mb-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-filter"></i> Filtry</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" id="filterForm">
+                    <!-- Wyszukiwanie -->
+                    <div class="mb-3">
+                        <label for="search" class="form-label">Wyszukaj</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="search"
+                            name="search" 
+                            placeholder="Tytuł filmu..."
+                            value="{{ request.GET.search }}"
+                        >
+                    </div>
+
+                    <!-- Status -->
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">Wszystkie</option>
+                            <option value="watched" {% if request.GET.status == 'watched' %}selected{% endif %}>Obejrzane</option>
+                            <option value="to_watch" {% if request.GET.status == 'to_watch' %}selected{% endif %}>Do obejrzenia</option>
+                        </select>
+                    </div>
+
+                    <!-- Tagi -->
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">Tagi</label>
+                        <select class="form-select" id="tags" name="tag" multiple size="5">
+                            {% for tag in tags %}
+                            <option value="{{ tag.name }}" {% if tag.name in request.GET.tag %}selected{% endif %}>
+                                {{ tag.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted d-block mt-1">Ctrl+Click do wybrania wielu</small>
+                    </div>
+
+                    <!-- Przyciski -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Filtruj
+                        </button>
+                        <a href="{% url 'movie_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo"></i> Resetuj
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="col-lg-9">
+        <div class="mb-4">
+            <h1 class="mb-3">
+                <i class="fas fa-film"></i> Moje Filmy
+            </h1>
+            <div class="btn-group" role="group">
+                <a href="{% url 'movie_list' %}" class="btn btn-outline-secondary {% if not request.GET.status %}active{% endif %}">
+                    <i class="fas fa-list"></i> Wszystkie
+                </a>
+                <a href="?status=watched" class="btn btn-outline-secondary {% if request.GET.status == 'watched' %}active{% endif %}">
+                    <i class="fas fa-eye"></i> Obejrzane
+                </a>
+                <a href="?status=to_watch" class="btn btn-outline-secondary {% if request.GET.status == 'to_watch' %}active{% endif %}">
+                    <i class="fas fa-bookmark"></i> Do obejrzenia
+                </a>
+            </div>
+        </div>
+
+        <!-- FILMY -->
+        {% if movies %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+            {% for movie in movies %}
+            <div class="col mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body d-flex flex-column">
+                        {% if movie.poster_path %}
+                        <div class="text-center mb-3">
+                            <img src="https://image.tmdb.org/t/p/w200{{ movie.poster_path }}" 
+                                 alt="{{ movie.title }}" 
+                                 class="card-img-top rounded-top"
+                                 style="object-fit: cover;">
+                        </div>
+                        {% endif %}
+                        <h5 class="card-title">{{ movie.title }}</h5>
+                        <p class="card-text text-muted">
+                            {% if movie.year %}
+                            <i class="fas fa-calendar"></i> {{ movie.year }}
+                            {% endif %}
+                            {% if movie.director %}
+                            <br><i class="fas fa-video"></i> {{ movie.director }}
+                            {% endif %}
+                        </p>
+                        
+                        {% if movie.rating %}
+                        <div class="mb-2">
+                            {% for i in "x"|rjust:"5" %}
+                                {% if forloop.counter <= movie.rating %}
+                                <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="badge bg-warning text-dark">{{ movie.rating }}/10</span>
+                        </div>
+                        {% endif %}
+                    
+                        {% if movie.status %}
+                        <p class="mb-2">
+                            {% if movie.status == 'watched' %}
+                            <span class="badge bg-success"><i class="fas fa-check"></i> Obejrzany</span>
+                            {% else %}
+                            <span class="badge bg-info"><i class="fas fa-clock"></i> Do obejrzenia</span>
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                    
+                        {% if movie.tags.all %}
+                        <div class="mb-3">
+                            {% for tag in movie.tags.all %}
+                            <span class="badge bg-secondary">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    
+                        <p class="card-text small text-muted flex-grow-1">
+                            {{ movie.description|truncatewords:15 }}
+                        </p>
+                    
+                        <div class="mt-auto">
+                            <a href="{% url 'movie_detail' movie.pk %}" class="btn btn-sm btn-primary me-1">
+                                <i class="fas fa-eye"></i> Szczegóły
+                            </a>
+                            <a href="{% url 'movie_edit' movie.pk %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i> Edytuj
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i> 
+            {% if request.GET.search or request.GET.status or request.GET.tag %}
+            Brak filmów spełniających kryteria. <a href="{% url 'movie_list' %}" class="alert-link">Wyczyść filtry</a>
+            {% else %}
+            Brak filmów. <a href="{% url 'add_movie' %}" class="alert-link">Dodaj nowy film</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
 </div>
-<!-- SORTOWANIE -->
-<form method="GET">
-    <input type="text" name="search" placeholder="Szukaj po tytule..." value="{{ request.GET.search }}">
-    
-    <select name="tag" multiple>
-        <option value="">Wszystkie tagi</option>
-        {% for tag in tags %}
-            <option value="{{ tag.name }}">{{ tag.name }}</option>
-        {% endfor %}
-    </select>
-
-    <button type="submit">Filtruj</button>
-    <a href="{% url 'movie_list' %}">Resetuj</a>
-</form>
-
-<p>
-    <a href="?status=watched">Obejrzane</a>
-    <a href="?status=to_watch">Do obejrzenia</a>
-    <a href="{% url 'movie_list' %}">Wszystkie filmy</a>
-</p>
-<p> 
-    <a href="{% url 'add_movie' %}">Dodaj film</a>
-    <a href="{% url 'search' %}">Wyszukaj film z bazy danych</a>
-</p>
-<!-- LISTA -->
-<ul>
-  {% for movie in movies %}
-  <li>
-    <a href="{% url 'movie_detail' movie.pk %}">
-      <h2>{{ movie.title }}</h2>
-      <p>{{ movie.director }} - {{ movie.year }}</p>
-    </a>
-  </li>
-  {% endfor %}
-</ul>
+{% endblock %}
