@@ -13,7 +13,7 @@ def movie_list(request):
     status = request.GET.get("status")
     movies = Movie.objects.filter(owner=request.user)
     search = request.GET.get("search", "").strip()
-    tag = request.GET.get("tag")
+    tag_list = request.GET.getlist("tag")
     tags = Tag.objects.filter(movie__owner=request.user).distinct()
 
     if status:
@@ -22,8 +22,8 @@ def movie_list(request):
     if search:
         movies = movies.filter(title__icontains=search)
 
-    if tag:
-        movies = movies.filter(tags__name=tag)
+    if tag_list:
+        movies = movies.filter(tags__name__in=tag_list)
 
     return render(request, "movies/movie_list.html", {
         "movies": movies,
@@ -54,6 +54,7 @@ def movie_detail(request, pk):
     return redirect("movie_list")
 
 
+@login_required
 def movie_delete(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
     if movie.owner == request.user:
@@ -63,6 +64,7 @@ def movie_delete(request, pk):
     return redirect("movie_detail", pk=pk)
 
 
+@login_required
 def movie_edit(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
     if movie.owner == request.user:
@@ -86,13 +88,13 @@ def register(request):
             form.save()
             return redirect("login")
     else:
-        form = UserCreationForm
+        form = UserCreationForm()
     return render(request, "registration/register.html", {"form": form})
 
 
 @login_required
 def search_movies_api(request):
-    resaults = []
+    results = []
     query = request.GET.get("q", "").strip()
 
     if query:
@@ -106,14 +108,14 @@ def search_movies_api(request):
         }
 
         try:
-            response = request.get(url, params=params)
+            response = requests.get(url, params=params)
             response.raise_for_status()
-            resaults = response.json()["resaults"]
+            results = response.json()["results"]
         except Exception as e:
             print(f"Bląd API: {e}")
 
     return render(request, "movies/search_api.html", {
-        "resaults": resaults,
+        "results": results,
         "query": query
     })
 
@@ -121,7 +123,7 @@ def search_movies_api(request):
 @login_required
 def add_movie_api(request, tmdb_id):
     api_key = settings.TMDB_API_KEY
-    url = f"https://api.themoviedb.org/3/search/movie{tmdb_id}"
+    url = f"https://api.themoviedb.org/3/movie/{tmdb_id}"
 
     params = {
         "api_key": api_key,
@@ -129,7 +131,7 @@ def add_movie_api(request, tmdb_id):
     }
 
     try:
-        response = request.get(url, params=params)
+        response = requests.get(url, params=params)
         data = response.json()
 
         movie, created = Movie.objects.get_or_create(
@@ -137,7 +139,7 @@ def add_movie_api(request, tmdb_id):
             owner=request.user,
             defaults={
                 "description": data.get("overview", ""),
-                "year": int(data.get("release_date", "0000")[:4]),
+                "year": int((data.get("release_date") or "0000")[:4]),
                 "status": "to_watch"
             }
         )
