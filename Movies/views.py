@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 import requests
+from django.conf import settings
 
 
 @login_required
@@ -95,7 +96,7 @@ def search_movies_api(request):
     query = request.GET.get("q", "").strip()
 
     if query:
-        api_key = "TMDB_API_KEY"
+        api_key = settings.TMDB_API_KEY
         url = "https://api.themoviedb.org/3/search/movie"
 
         params = {
@@ -119,7 +120,7 @@ def search_movies_api(request):
 
 @login_required
 def add_movie_api(request, tmdb_id):
-    api_key = "TMDB_API_KEY"
+    api_key = settings.TMDB_API_KEY
     url = f"https://api.themoviedb.org/3/search/movie{tmdb_id}"
 
     params = {
