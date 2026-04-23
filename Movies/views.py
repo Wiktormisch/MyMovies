@@ -4,6 +4,7 @@ from .forms import MovieForm
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+import requests
 
 
 @login_required
@@ -86,3 +87,30 @@ def register(request):
     else:
         form = UserCreationForm
     return render(request, "registration/register.html", {"form": form})
+
+@login_required
+def search_movies_api(request):
+    resault = []
+    query = request.GET.get("q", "").strip()
+    
+    if query:
+        api_key = "TMDB_API_KEY"
+        url = "https://api.themoviedb.org/3/search/movie"
+        
+        params = {
+            "api_key": api_key,
+            "query": query,
+            "language": "pl-PL"
+        }
+    
+        try:
+            response = request.get(url, params=params)
+            response.raise_for_status()
+            resaults = response.json()["resaults"]
+        except Exception as e:
+            print(f"Bląd API: {e}")
+    
+    return render(request, "movies/search_api.html",{
+        "resaults": resaults,
+        "query", query,
+    })
