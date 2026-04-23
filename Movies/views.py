@@ -4,6 +4,8 @@ from .forms import MovieForm
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+import requests
+from django.conf import settings
 
 
 @login_required
@@ -11,7 +13,7 @@ def movie_list(request):
     status = request.GET.get("status")
     movies = Movie.objects.filter(owner=request.user)
     search = request.GET.get("search", "").strip()
-    tag = request.GET.get("tag")
+    tag_list = request.GET.getlist("tag")
     tags = Tag.objects.filter(movie__owner=request.user).distinct()
 
     if status:
@@ -20,8 +22,8 @@ def movie_list(request):
     if search:
         movies = movies.filter(title__icontains=search)
 
-    if tag:
-        movies = movies.filter(tags__name=tag)
+    if tag_list:
+        movies = movies.filter(tags__name__in=tag_list)
 
     return render(request, "movies/movie_list.html", {
         "movies": movies,
@@ -52,6 +54,7 @@ def movie_detail(request, pk):
     return redirect("movie_list")
 
 
+@login_required
 def movie_delete(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
     if movie.owner == request.user:
@@ -61,6 +64,7 @@ def movie_delete(request, pk):
     return redirect("movie_detail", pk=pk)
 
 
+@login_required
 def movie_edit(request, pk):
     movie = get_object_or_404(Movie, pk=pk)
     if movie.owner == request.user:
@@ -84,5 +88,66 @@ def register(request):
             form.save()
             return redirect("login")
     else:
-        form = UserCreationForm
+        form = UserCreationForm()
     return render(request, "registration/register.html", {"form": form})
+
+
+@login_required
+def search_movies_api(request):
+    results = []
+    query = request.GET.get("q", "").strip()
+
+    if query:
+        api_key = settings.TMDB_API_KEY
+        url = "https://api.themoviedb.org/3/search/movie"
+
+        params = {
+            "api_key": api_key,
+            "query": query,
+            "language": "pl-PL"
+        }
+
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()
+            results = response.json()["results"]
+        except Exception as e:
+            print(f"Bląd API: {e}")
+
+    return render(request, "movies/search_api.html", {
+        "results": results,
+        "query": query
+    })
+
+
+@login_required
+def add_movie_api(request, tmdb_id):
+    api_key = settings.TMDB_API_KEY
+    url = f"https://api.themoviedb.org/3/movie/{tmdb_id}"
+
+    params = {
+        "api_key": api_key,
+        "language": "pl-PL"
+    }
+
+    try:
+        response = requests.get(url, params=params)
+        data = response.json()
+
+        movie, created = Movie.objects.get_or_create(
+            title=data["title"],
+            owner=request.user,
+            defaults={
+                "description": data.get("overview", ""),
+                "year": int((data.get("release_date") or "0000")[:4]),
+                "status": "to_watch"
+            }
+        )
+        if created:
+            return redirect("movie_detail", pk=movie.pk)
+        else:
+            return redirect("movie_list")
+
+    except Exception as e:
+        print(f"Blad dodawnia filmu: {e}")
+        return redirect("movie_list")

@@ -1,0 +1,33 @@
+<h1> Wyszukiwarka filmów </h1>
+
+<form method="get" action="{% url 'search' %}">
+    <input type="text" name="q" placeholder="Nazwa filmu..." value="{{ query }}">
+    <button type="submit">Szukaj</button>
+</form>
+
+
+<section>
+    {% if results %}
+        <ul>
+            {% for movie in results  %}
+                <li style="display: flex; align-items: center; gap: 10px;">
+                    
+                    {% if movie.poster_path %}                        
+                    <div>
+                        <img src="https://image.tmdb.org/t/p/w200{{ movie.poster_path }}" alt="{{ movie.title }}">
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h3>Tytuł: {{ movie.title }}</h3>
+                        <p>Premiera: {{ movie.release_date }}</p>
+                        <p>Opis: {{ movie.overview }}</p>
+                        <p>Język oryginalny: {{ movie.original_language }}</p>
+                        <a href="{% url 'add_movie_api' movie.id %}">Dodaj do mojej bazy</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif query%}
+        <p> Brak wyników </p>
+    {% endif %}
+</section>
