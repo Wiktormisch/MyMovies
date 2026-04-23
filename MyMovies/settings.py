@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 load_dotenv()
-TMDB_API_KEY = os.getenv("TMBD_API_KEY")
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
