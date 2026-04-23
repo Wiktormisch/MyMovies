@@ -27,6 +27,7 @@ class Movie (models.Model):
     tags = models.ManyToManyField(Tag, blank=True)
     created_at = models.DateField(auto_now_add=True, blank=True)
     updated_at = models.DateField(auto_now=True, blank=True)
+    poster_path = models.CharField(max_length=100, blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     class Meta:
