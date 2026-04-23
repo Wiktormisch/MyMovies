@@ -14,7 +14,7 @@
                     <h3>{{ movie.title }}</h3>
                     <p> {{ movie.year }}</p>
                     <p> {{ movie.overview }}</p>
-                    <a href="{% url 'add_movie_from_api' movie.id %}">Dodaj do mojej bazy</a>"
+                    <a href="{% url 'add_from_api' movie.id %}">Dodaj do mojej bazy</a>"
                 </li>
             {% endfor %}
         </ul>
