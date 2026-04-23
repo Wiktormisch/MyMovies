@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Movie
+from .models import Movie, Tag
 from .forms import MovieForm
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.forms import UserCreationForm
@@ -10,11 +10,22 @@ from django.contrib.auth.decorators import login_required
 def movie_list(request):
     status = request.GET.get("status")
     movies = Movie.objects.filter(owner=request.user)
+    search = request.GET.get("search", "").strip()
+    tag = request.GET.get("tag")
+    tags = Tag.objects.filter(movie__owner=request.user).distinct()
 
     if status:
         movies = movies.filter(status=status)
 
-    return render(request, "movies/movie_list.html", {"movies": movies})
+    if search:
+        movies = movies.filter(title__icontains=search)
+
+    if tag:
+        movies = movies.filter(tags__name=tag)
+
+    return render(request, "movies/movie_list.html", {
+        "movies": movies,
+        "tags": tags})
 
 
 @login_required
