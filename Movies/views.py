@@ -141,7 +141,7 @@ def add_movie_api(request, tmdb_id):
                 "description": data.get("overview", ""),
                 "year": int((data.get("release_date") or "0000")[:4]),
                 "status": "to_watch",
-                "poster_path": data["poster_path", ""]
+                "poster_path": data.get("poster_path", "")
             }
         )
         if created:

@@ -1,30 +1,140 @@
-<div>
-    <h1>{{ movie.title }}</h1>
-    <div>
-        <p>Rezyser: {{ movie.director }}</p>
-        <p>Wydany: {{ movie.year }}</p>
-        <div>
-            <h2>Tagi</h2>
-            {% for tag in movie.tags.all %}
-            <div>{{ tag.name }}</div>
-            {% endfor %}
+{% extends 'base.html' %}
+
+{% block title %}{{ movie.title }} - Szczegóły{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow">
+                {% if movie.poster_path %}
+                <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                     alt="{{ movie.title }}" 
+                     class="card-img-top rounded">
+                {% else %}
+                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center text-white" 
+                     style="height: 400px;">
+                    <i class="fas fa-film fa-3x"></i>
+                </div>
+                {% endif %}
+                
+                <div class="card-body text-center">
+                    {% if movie.rating %}
+                    <div class="mb-2">
+                        <h5 class="text-warning mb-1">
+                            {% for i in "x"|rjust:"5" %}
+                                {% if forloop.counter <= movie.rating %}
+                                <i class="fas fa-star"></i>
+                                {% else %}
+                                <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </h5>
+                        <span class="badge bg-warning text-dark">{{ movie.rating }}/10</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if movie.status == "watched" %}
+                    <span class="badge bg-success fs-6"><i class="fas fa-check"></i> Obejrzany</span>
+                    {% else %}
+                    <span class="badge bg-info fs-6"><i class="fas fa-clock"></i> Do obejrzenia</span>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-    {% if movie.status == "to_watch" %}
-        <p>Chcesz go zobaczyc</p>
-    {% else %}
-        <h2>Obejrzany</h2>
-    {% endif %}
+
+        <!-- Szczegóły -->
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h1 class="h3 mb-0">{{ movie.title }}</h1>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Podstawowe info -->
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            {% if movie.director %}
+                            <p class="mb-2">
+                                <strong><i class="fas fa-video text-primary"></i> Reżyser:</strong><br>
+                                {{ movie.director }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6">
+                            {% if movie.year %}
+                            <p class="mb-2">
+                                <strong><i class="fas fa-calendar text-primary"></i> Rok wydania:</strong><br>
+                                {{ movie.year }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Opis -->
+                    {% if movie.description %}
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-align-left"></i> Opis
+                        </h5>
+                        <p class="lead">{{ movie.description }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Tagi -->
+                    {% if movie.tags.all %}
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-tags"></i> Tagi
+                        </h5>
+                        <div>
+                            {% for tag in movie.tags.all %}
+                            <span class="badge bg-secondary me-2 mb-2">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Przyciski -->
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{% url 'movie_edit' movie.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edytuj film
+                        </a>
+                        
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="fas fa-trash"></i> Usuń film
+                        </button>
+                        
+                        <a href="{% url 'movie_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Powrót do listy
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<div>
-    <form method="post" action="{% url 'movie_edit' movie.pk %}">
-        {% csrf_token %}
-        <button type="submit">EDYTUJ</button>
-    </form>
 
-
-    <form method="post" action="{% url 'movie_delete' movie.pk %}">
-        {% csrf_token %}
-        <button type="submit">USUŃ FILM</button>
-    </form>
+<!-- potwierdzenie usunięcia -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Potwierdź usunięcie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Czy na pewno chcesz usunąć film <strong>"{{ movie.title }}"</strong>?</p>
+                <p class="text-danger mb-0">Ta akcja jest nieodwracalna.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                <form method="post" action="{% url 'movie_delete' movie.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Usuń film</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
