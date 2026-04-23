@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 load_dotenv()
-TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+TMDB_API_KEY = os.getenv("TMBD_API_KEY")
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -125,3 +125,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
