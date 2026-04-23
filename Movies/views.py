@@ -77,7 +77,10 @@ def movie_edit(request, pk):
         else:
             form = MovieForm(instance=movie)
 
-        return render(request, "movies/edit_movie.html", {"form": form})
+        return render(request, "movies/edit_movie.html", {
+            "form": form,
+            "movie": movie
+        })
     return redirect("movie_list")
 
 
