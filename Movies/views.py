@@ -88,29 +88,63 @@ def register(request):
         form = UserCreationForm
     return render(request, "registration/register.html", {"form": form})
 
+
 @login_required
 def search_movies_api(request):
-    resault = []
+    resaults = []
     query = request.GET.get("q", "").strip()
-    
+
     if query:
         api_key = "TMDB_API_KEY"
         url = "https://api.themoviedb.org/3/search/movie"
-        
+
         params = {
             "api_key": api_key,
             "query": query,
             "language": "pl-PL"
         }
-    
+
         try:
             response = request.get(url, params=params)
             response.raise_for_status()
             resaults = response.json()["resaults"]
         except Exception as e:
             print(f"Bląd API: {e}")
-    
-    return render(request, "movies/search_api.html",{
+
+    return render(request, "movies/search_api.html", {
         "resaults": resaults,
-        "query", query,
+        "query": query
     })
+
+
+@login_required
+def add_movie_api(request, tmdb_id):
+    api_key = "TMDB_API_KEY"
+    url = f"https://api.themoviedb.org/3/search/movie{tmdb_id}"
+
+    params = {
+        "api_key": api_key,
+        "language": "pl-PL"
+    }
+
+    try:
+        response = request.get(url, params=params)
+        data = response.json()
+
+        movie, created = Movie.objects.get_or_create(
+            title=data["title"],
+            owner=request.user,
+            defaults={
+                "description": data.get("overview", ""),
+                "year": int(data.get("release_date", "0000")[:4]),
+                "status": "to_watch"
+            }
+        )
+        if created:
+            return redirect("movie_detail", pk=movie.pk)
+        else:
+            return redirect("movie_list")
+
+    except Exception as e:
+        print(f"Blad dodawnia filmu: {e}")
+        return redirect("movie_list")

@@ -1,0 +1,24 @@
+<h1> Wyszukiwarka filmów </h1>
+
+<form method="get" action="{% url 'search_api' %}">
+    <input type="text" name="q" placeholder="Nazwa filmu..." value="{{ query }}">
+    <button type="submit">Szukaj</button>
+</form>
+
+
+<section>
+    {% if results %}
+        <ul>
+            {% for movie in results  %}
+                <li>
+                    <h3>{{ movie.title }}</h3>
+                    <p> {{ movie.year }}</p>
+                    <p> {{ movie.overview }}</p>
+                    <a href="{% url 'add_movie_from_api' movie.id %}">Dodaj do mojej bazy</a>"
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif query%}
+        <p> Brak wyników </p>
+    {% endif %}
+</section>
