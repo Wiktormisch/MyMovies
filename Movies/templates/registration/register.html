@@ -1,7 +1,98 @@
-<h1>Utworz konto</h1>
+{% extends 'base.html' %}
+{% load widget_tweaks %}
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="sumbit">Przeslij</button>
-</form>
+{% block title %}Rejestracja - MyMovies{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h2 class="h4 mb-0">
+                        <i class="fas fa-user-plus"></i> Utwórz konto
+                    </h2>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {% if field.name == 'username' %}
+                                <i class="fas fa-user"></i> Nazwa użytkownika
+                                {% elif field.name == 'email' %}
+                                <i class="fas fa-envelope"></i> Adres email
+                                {% elif field.name == 'password1' %}
+                                <i class="fas fa-lock"></i> Hasło
+                                {% elif field.name == 'password2' %}
+                                <i class="fas fa-lock"></i> Powtórz hasło
+                                {% else %}
+                                {{ field.label }}
+                                {% endif %}
+                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            
+                            {% if field.name == 'password1' %}
+                                {{ field|add_class:"form-control"|attr:"placeholder:Wpisz bezpieczne hasło" }}
+                            {% elif field.name == 'password2' %}
+                                {{ field|add_class:"form-control"|attr:"placeholder:Powtórz hasło" }}
+                            {% elif field.name == 'email' %}
+                                {{ field|add_class:"form-control"|attr:"placeholder:twoj@email.com"|attr:"type:email" }}
+                            {% else %}
+                                {{ field|add_class:"form-control"|attr:"placeholder:Wpisz nazwę użytkownika" }}
+                            {% endif %}
+                            
+                            {% if field.errors %}
+                            <div class="alert alert-danger mt-2 py-2">
+                                <small>{{ field.errors }}</small>
+                            </div>
+                            {% endif %}
+                            
+                            {% if field.help_text and not field.errors %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-user-plus"></i> Utwórz konto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light text-center">
+                    <small class="text-muted">
+                        Masz już konto? 
+                        <a href="{% url 'login' %}" class="text-success fw-bold">
+                            Zaloguj się
+                        </a>
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Warunki -->
+            <div class="alert alert-info mt-3">
+                <h6 class="alert-heading">
+                    <i class="fas fa-info-circle"></i> Wymagania hasła
+                </h6>
+                <ul class="mb-0 small">
+                    <li>Minimum 8 znaków</li>
+                    <li>Nie może być zbyt podobne do innych danych</li>
+                    <li>Musi zawierać cyfry i litery</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

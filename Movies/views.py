@@ -77,7 +77,10 @@ def movie_edit(request, pk):
         else:
             form = MovieForm(instance=movie)
 
-        return render(request, "movies/edit_movie.html", {"form": form})
+        return render(request, "movies/edit_movie.html", {
+            "form": form,
+            "movie": movie
+        })
     return redirect("movie_list")
 
 
@@ -140,7 +143,8 @@ def add_movie_api(request, tmdb_id):
             defaults={
                 "description": data.get("overview", ""),
                 "year": int((data.get("release_date") or "0000")[:4]),
-                "status": "to_watch"
+                "status": "to_watch",
+                "poster_path": data.get("poster_path", "")
             }
         )
         if created:
