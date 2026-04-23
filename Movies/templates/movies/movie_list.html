@@ -160,33 +160,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% if movies %}
-{% for movie in movies %}
-{% if movie.rating %}
-{% for i in "x"|rjust:"5" %}
-{% if forloop.counter <= movie.rating %}
-<i class="fas fa-star text-warning"></i>
-{% else %}
-<i class="far fa-star text-warning"></i>
-{% endif %}
-{% endfor %}
-<span class="badge bg-warning text-dark">{{ movie.rating }}/10</span>
-{% endif %}
-{% if movie.status %}
-{% if movie.status == 'watched' %}
-<span class="badge bg-success"><i class="fas fa-check"></i> Obejrzany</span>
-{% else %}
-<span class="badge bg-info"><i class="fas fa-clock"></i> Do obejrzenia</span>
-{% endif %}
-{% endif %}
-{% if movie.tags.all %}
-{% for tag in movie.tags.all %}
-<span class="badge bg-secondary">{{ tag.name }}</span>
-{% endfor %}
-{% endif %}
-{% if movie.description %}
-{{ movie.description|truncatewords:15 }}
-{% endif %}
-{% endfor %}
-{% endif %}
