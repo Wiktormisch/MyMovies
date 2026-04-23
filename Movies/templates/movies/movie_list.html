@@ -1,12 +1,12 @@
 <h1>My Movies</h1>
 <div>
-    <div> Witaj uzytkowniku </div>
+    <div> Witaj {{ user.username }} </div>
     <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
         <button type="submit">Wyloguj</button>
     </form>
 </div>
-
+<!-- SORTOWANIE -->
 <form method="GET">
     <input type="text" name="search" placeholder="Szukaj po tytule..." value="{{ request.GET.search }}">
     
@@ -29,6 +29,7 @@
 <p> 
     <a href="{% url 'add_movie' %}">Dodaj film</a>
 </p>
+<!-- LISTA -->
 <ul>
   {% for movie in movies %}
   <li>

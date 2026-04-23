@@ -12,7 +12,7 @@ def movie_list(request):
     movies = Movie.objects.filter(owner=request.user)
     search = request.GET.get("search", "").strip()
     tag = request.GET.get("tag")
-    tags = Tag.objects.all()
+    tags = Tag.objects.filter(movie__owner=request.user).distinct()
 
     if status:
         movies = movies.filter(status=status)
