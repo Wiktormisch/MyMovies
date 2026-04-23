@@ -14,7 +14,7 @@ class Movie (models.Model):
 
     STATUS_CHOICES = [("watched", "Watched"),
                       ("to_watch", "To Watch")]
-    RAITING_CHOICES = [(i, str(i)) for i in range(1, 11)]
+    RATING_CHOICES = [(i, str(i)) for i in range(1, 11)]
 
     title = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -23,7 +23,7 @@ class Movie (models.Model):
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default="to_watch")
     rating = models.IntegerField(
-        max_length=2, choices=RAITING_CHOICES, blank=True, null=True)
+        choices=RATING_CHOICES, blank=True, null=True)
     tags = models.ManyToManyField(Tag, blank=True)
     created_at = models.DateField(auto_now_add=True, blank=True)
     updated_at = models.DateField(auto_now=True, blank=True)
