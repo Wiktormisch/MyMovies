@@ -16,7 +16,7 @@ class Movie (models.Model):
                       ("to_watch", "To Watch")]
     RATING_CHOICES = [(i, str(i)) for i in range(1, 11)]
 
-    title = models.CharField(max_length=255, unique=True)
+    title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     director = models.CharField(max_length=255, blank=True, null=True)
     year = models.IntegerField(blank=True, null=True)
@@ -28,6 +28,9 @@ class Movie (models.Model):
     created_at = models.DateField(auto_now_add=True, blank=True)
     updated_at = models.DateField(auto_now=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        unique_together = [["title", "owner"]]
 
     def __str__(self):
 
