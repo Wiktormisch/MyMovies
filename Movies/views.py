@@ -85,14 +85,27 @@ def movie_edit(request, pk):
 
 
 def register(request):
+    # Rejestracja jest wyłączona w wersji demo.
+    form = UserCreationForm()
+    registration_disabled = True
+    registration_message = (
+        "Rejestracja jest tymczasowo wyłączona. "
+        "Użyj istniejącego konta demo, aby się zalogować."
+    )
+
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("login")
-    else:
-        form = UserCreationForm()
-    return render(request, "registration/register.html", {"form": form})
+        # Jeśli ktoś wysyła formularz ręcznie, zawsze pokażemy komunikat.
+        return render(request, "registration/register.html", {
+            "form": form,
+            "registration_disabled": registration_disabled,
+            "registration_message": registration_message,
+        })
+
+    return render(request, "registration/register.html", {
+        "form": form,
+        "registration_disabled": registration_disabled,
+        "registration_message": registration_message,
+    })
 
 
 @login_required
