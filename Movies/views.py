@@ -32,6 +32,14 @@ def movie_list(request):
 
 @login_required
 def add_movie(request):
+    # Sprawdź limit filmów (max 50 per użytkownik)
+    movie_count = Movie.objects.filter(owner=request.user).count()
+    if movie_count >= 50:
+        return render(request, "movies/add_movie.html", {
+            "form": MovieForm(),
+            "error": "Osiągnąłeś limit 50 filmów. Usuń niektóre filmy, aby dodać nowe."
+        })
+
     if request.method == "POST":
         form = MovieForm(request.POST)
         if form.is_valid():
