@@ -16,7 +16,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from Movies.views import (movie_list, add_movie,
+                          movie_detail, movie_delete, movie_edit, register,
+                          search_movies_api, add_movie_api)
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("", movie_list, name="movie_list"),
+    path("movies/movie_list/", movie_list, name="movie_list"),
+    path("movies/add_movie/", add_movie, name="add_movie"),
+    path("movies/<int:pk>/", movie_detail, name="movie_detail"),
+    path("movies/<int:pk>/delete", movie_delete, name="movie_delete"),
+    path("movies/<int:pk>/edit", movie_edit, name="movie_edit"),
+    path("login/", auth_views.LoginView.as_view(), name="login"),
+    path("logout/", auth_views.LogoutView.as_view(next_page='/login/'), name="logout"),
+    path("register/", register, name="register"),
+    path("search/", search_movies_api, name="search"),
+    path("add_from_api/<int:tmdb_id>/", add_movie_api, name="add_movie_api")
 ]
