@@ -107,27 +107,6 @@ The app is production-ready and containerized for easy deployment.
    ```
 4. Open the app at `http://localhost:8000`
 
-### Production on VPS
-1. Upload your project files to the VPS
-2. Copy `.env.production` to `.env` on the server
-3. Configure your environment:
-   ```bash
-   cp .env.production .env
-   ```
-4. Build and start:
-   ```bash
-   docker compose build
-   docker compose up -d
-   ```
-5. Access the app at `http://jack165.mikrus.xyz:20165`
-
-### Environment Variables
-- `SECRET_KEY` - Django secret key for cryptographic operations
-- `TMDB_API_KEY` - API key for TMDB movie data
-- `DEBUG` - Django debug mode (False for production)
-- `ALLOWED_HOSTS` - Comma-separated allowed hostnames
-- `CSRF_TRUSTED_ORIGINS` - CSRF-trusted origins
-
 ### Limits & Constraints
 - Maximum 50 movies per user
 - Registration is disabled for demo purposes
