@@ -1,0 +1,16 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "20165:8000"
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./staticfiles:/app/staticfiles
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn MyMovies.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120"

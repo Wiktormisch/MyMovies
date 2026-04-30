@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Wyszukiwarka Filmów - MyMovies{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Nagłówek -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-search text-primary"></i> Wyszukiwarka Filmów
+                </h1>
+                <p class="lead text-muted">Znajdź filmy w bazie TMDB i dodaj do swojej kolekcji</p>
+            </div>
+
+            <!-- Formularz -->
+            <div class="card shadow mb-4">
+                <div class="card-body p-4">
+                    <form method="get" action="{% url 'search' %}" id="searchForm">
+                        <div class="input-group input-group-lg">
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                name="q" 
+                                placeholder="Wpisz tytuł filmu..." 
+                                value="{{ query }}"
+                                required
+                                autocomplete="off"
+                            >
+                            <button class="btn btn-primary" type="submit" id="searchBtn">
+                                <i class="fas fa-search"></i> Szukaj
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Wyniki -->
+            {% if results %}
+            <div class="mb-3">
+                <h4 class="text-muted">
+                    <i class="fas fa-list"></i> Znalezione filmy ({{ results|length }})
+                </h4>
+            </div>
+
+            <div class="row">
+                {% for movie in results %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm movie-card">
+                        {% if movie.poster_path %}
+                        <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}" 
+                             class="card-img-top" 
+                             alt="{{ movie.title }}"
+                             style="height: 250px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center text-white" 
+                             style="height: 250px;">
+                            <i class="fas fa-film fa-2x"></i>
+                        </div>
+                        {% endif %}
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ movie.title }}</h5>
+                            
+                            <div class="mb-2">
+                                {% if movie.release_date %}
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar"></i> {{ movie.release_date|slice:":4" }}
+                                </small>
+                                {% endif %}
+                                
+                                {% if movie.original_language %}
+                                <small class="text-muted ms-2">
+                                    <i class="fas fa-globe"></i> {{ movie.original_language|upper }}
+                                </small>
+                                {% endif %}
+                            </div>
+
+                            {% if movie.vote_average %}
+                            <div class="mb-2">
+                                <i class="fas fa-star text-warning"></i>
+                                <span class="fw-bold">{{ movie.vote_average|floatformat:1 }}</span>
+                                <small class="text-muted">/10</small>
+                            </div>
+                            {% endif %}
+
+                            <p class="card-text small text-muted flex-grow-1">
+                                {{ movie.overview|truncatewords:20 }}
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-white">
+                            <a href="{% url 'add_movie_api' movie.id %}" class="btn btn-success btn-sm w-100">
+                                <i class="fas fa-plus"></i> Dodaj do bazy
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% elif query %}
+            <!-- Brak wyników -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-search fa-4x text-muted"></i>
+                </div>
+                <h4 class="text-muted">Brak wyników</h4>
+                <p class="text-muted mb-4">
+                    Nie znaleziono filmów dla zapytania "<strong>{{ query }}</strong>"
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{% url 'search' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-redo"></i> Nowe wyszukiwanie
+                    </a>
+                    <a href="{% url 'movie_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-home"></i> Moje filmy
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
