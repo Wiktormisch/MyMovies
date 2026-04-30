@@ -3,16 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        SECRET_KEY: ${SECRET_KEY}
-        TMDB_API_KEY: ${TMDB_API_KEY}
-        DEBUG: ${DEBUG}
-        ALLOWED_HOSTS: ${ALLOWED_HOSTS}
-        CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS}
     env_file:
       - .env
     ports:
       - "20165:8000"
     volumes:
       - ./db.sqlite3:/app/db.sqlite3
+      - ./staticfiles:/app/staticfiles
     restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn MyMovies.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120"
