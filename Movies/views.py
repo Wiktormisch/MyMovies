@@ -32,6 +32,14 @@ def movie_list(request):
 
 @login_required
 def add_movie(request):
+    # Sprawdź limit filmów (max 50 per użytkownik)
+    movie_count = Movie.objects.filter(owner=request.user).count()
+    if movie_count >= 50:
+        return render(request, "movies/add_movie.html", {
+            "form": MovieForm(),
+            "error": "Osiągnąłeś limit 50 filmów. Usuń niektóre filmy, aby dodać nowe."
+        })
+
     if request.method == "POST":
         form = MovieForm(request.POST)
         if form.is_valid():
@@ -85,14 +93,27 @@ def movie_edit(request, pk):
 
 
 def register(request):
+    # Rejestracja jest wyłączona w wersji demo.
+    form = UserCreationForm()
+    registration_disabled = True
+    registration_message = (
+        "Rejestracja jest tymczasowo wyłączona. "
+        "Użyj istniejącego konta demo, aby się zalogować."
+    )
+
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("login")
-    else:
-        form = UserCreationForm()
-    return render(request, "registration/register.html", {"form": form})
+        # Jeśli ktoś wysyła formularz ręcznie, zawsze pokażemy komunikat.
+        return render(request, "registration/register.html", {
+            "form": form,
+            "registration_disabled": registration_disabled,
+            "registration_message": registration_message,
+        })
+
+    return render(request, "registration/register.html", {
+        "form": form,
+        "registration_disabled": registration_disabled,
+        "registration_message": registration_message,
+    })
 
 
 @login_required

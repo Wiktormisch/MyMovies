@@ -22,7 +22,7 @@ from Movies.views import (movie_list, add_movie,
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("", movie_list, name="movie_list"),
     path("movies/movie_list/", movie_list, name="movie_list"),
     path("movies/add_movie/", add_movie, name="add_movie"),
     path("movies/<int:pk>/", movie_detail, name="movie_detail"),
