@@ -1,8 +1,8 @@
 # 🎬 MyMovies
 
-MyMovies is a simple web application built with Django that helps users organize, track, and get recommendations for movies they want to watch or have already watched.
+MyMovies is a simple web application built with Django that helps users organize and track.
 
-The main goal of the project is to eliminate the frustration of endlessly scrolling through streaming platforms and instead provide a personal, structured movie library with smart suggestions.
+The main goal of the project is to eliminate the frustration of endlessly scrolling through streaming platforms and instead provide a personal, structured movie library.
 
 ---
 
@@ -12,7 +12,7 @@ The main goal of the project is to eliminate the frustration of endlessly scroll
 
 > **Demo Account**
 > - Username: `demo`
-> - Password: `demo123`
+> - Password: `demo1`
 > - Note: This is a demo version with limited functionality. Registration is disabled.
 
 ---
@@ -28,7 +28,6 @@ The main goal of the project is to eliminate the frustration of endlessly scroll
 - 🏷️ Add and organize movies with tags
 - 📋 Filter movies by status and tags
 - 🔍 Search movies using TMDB API
-- 💡 Movie recommendations based on ratings and tags
 - 📊 Personal movie statistics and collection management
 
 ---
