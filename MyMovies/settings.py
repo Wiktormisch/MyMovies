@@ -25,12 +25,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%qkiq=tgesn^j6x71!$jm7q#$7x!+!jkzld4c=*64e9-e!hu27'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+# Wyłącz SSL redirect (bo HTTP, nie HTTPS)
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+# Ale dodaj CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = ['http://jack165.mikrus.xyz:20165']
+
+# ALLOWED_HOSTS
+ALLOWED_HOSTS = ['jack165.mikrus.xyz', 'www.jack165.mikrus.xyz']
 
 
 # Application definition
