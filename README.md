@@ -43,3 +43,25 @@ The main goal of the project is to eliminate the frustration of endlessly scroll
 ## 🌳 Git Workflow
 
 This project follows a **Feature Branch Workflow**:
+
+## 🐳 Docker deployment
+
+The app is prepared to run in Docker with environment variables from `.env`.
+
+1. Copy `.env.example` to `.env` and set your values.
+2. Build the image:
+   ```bash
+   docker compose build
+   ```
+3. Run the container:
+   ```bash
+   docker compose up
+   ```
+4. Open the app at `http://localhost:8000`.
+
+For production on your VPS, make sure `.env` contains:
+- `SECRET_KEY`
+- `TMDB_API_KEY`
+- `DEBUG=False`
+- `ALLOWED_HOSTS=jack165.mikrus.xyz`
+- `CSRF_TRUSTED_ORIGINS=http://jack165.mikrus.xyz:20165`
