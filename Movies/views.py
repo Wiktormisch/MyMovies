@@ -23,7 +23,7 @@ def movie_list(request):
         movies = movies.filter(title__icontains=search)
 
     if tag_list:
-        movies = movies.filter(tags__name__in=tag_list)
+        movies = movies.filter(tags__name__in=tag_list).distinct()
 
     return render(request, "movies/movie_list.html", {
         "movies": movies,
