@@ -8,7 +8,7 @@ The main goal of the project is to eliminate the frustration of endlessly scroll
 
 ## 🌐 Live Demo
 
-**Try the application now:** [MyMovies Demo](http://jack165.mikrus.xyz:20165/)
+**Try the application now:** [MyMovies Demo](https://wiktormischker.dev/app)
 
 > **Demo Account**
 > - Username: `demo`
