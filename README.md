@@ -96,7 +96,7 @@ This project follows a **Feature Branch Workflow**:
 The app is production-ready and containerized for easy deployment.
 
 ### Local Development
-1. Copy `.env.example` to `.env` (will use local defaults)
+1. Copy `.env.example` to `.env` and fill in your own `SECRET_KEY` and `TMDB_API_KEY`
 2. Build the image:
    ```bash
    docker compose build
@@ -109,11 +109,13 @@ The app is production-ready and containerized for easy deployment.
 
 ### Production on VPS
 1. Upload your project files to the VPS
-2. Copy `.env.production` to `.env` on the server
-3. Configure your environment:
+2. Create the `.env` file on the server (it is never committed):
    ```bash
-   cp .env.production .env
+   cp .env.example .env
    ```
+3. Fill in `.env` with the production values: a freshly generated `SECRET_KEY`,
+   your `TMDB_API_KEY`, `DEBUG=False`, and your own `ALLOWED_HOSTS` /
+   `CSRF_TRUSTED_ORIGINS`.
 4. Build and start:
    ```bash
    docker compose build
@@ -122,8 +124,13 @@ The app is production-ready and containerized for easy deployment.
 5. Access the app at `http://jack165.mikrus.xyz:20165`
 
 ### Environment Variables
-- `SECRET_KEY` - Django secret key for cryptographic operations
-- `TMDB_API_KEY` - API key for TMDB movie data
+- `SECRET_KEY` - Django secret key for cryptographic operations. Generate a fresh
+  one per environment and never reuse or commit it:
+  `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
+- `TMDB_API_KEY` - API key for TMDB movie data, from https://www.themoviedb.org/settings/api
+
+Real values live only in `.env`, which is git-ignored. `.env.example` is the
+committed template and must never contain a real credential.
 - `DEBUG` - Django debug mode (False for production)
 - `ALLOWED_HOSTS` - Comma-separated allowed hostnames
 - `CSRF_TRUSTED_ORIGINS` - CSRF-trusted origins
