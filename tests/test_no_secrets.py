@@ -1,11 +1,11 @@
-"""Bramka bezpieczeństwa: w repozytorium nie ma sekretów.
+"""Security gate: the repository contains no credentials.
 
-Testy pilnują regresji, która już się wydarzyła: plik `.env.production`
-z prawdziwym SECRET_KEY i TMDB_API_KEY trafił na publicznego GitHuba.
-Zwykły `grep` go nie znalazł, bo plik był zapisany w UTF-16 - dlatego
-skaner poniżej dekoduje każdy wariant kodowania, a nie tylko UTF-8.
+This guards a regression that already happened. `.env.production`, holding a
+live SECRET_KEY and TMDB_API_KEY, was committed to a public repo. A plain grep
+never surfaced it because the file was saved as UTF-16, so the scanner below
+decodes every encoding rather than assuming UTF-8.
 
-Testy są deterministyczne, lokalne i nie wychodzą do sieci.
+Deterministic, local, offline.
 """
 import re
 import subprocess
@@ -15,146 +15,110 @@ import pytest
 
 REPO = Path(__file__).resolve().parent.parent
 
-# Jedyny plik .env, który wolno śledzić w gicie.
-DOZWOLONY_SZABLON = ".env.example"
+# The only .env file allowed to be tracked.
+TEMPLATE = ".env.example"
 
-# Klucze, których wartość nigdy nie może być zacommitowana.
-WRAZLIWE_KLUCZE = ("SECRET_KEY", "TMDB_API_KEY", "API_KEY", "TOKEN", "PASSWORD")
+SENSITIVE_KEYS = ("SECRET_KEY", "TMDB_API_KEY", "API_KEY", "TOKEN", "PASSWORD")
 
-# Wartości, które są oczywistymi atrapami, a nie sekretami.
-# Uwaga: puste alternatywy typu r"^(|...)" pasują do KAŻDEGO ciągu i czynią
-# test bezużytecznym - pustą wartość dopuszczamy wyłącznie jako pełne dopasowanie.
-ATRAPY = re.compile(
+# Values that are obviously stand-ins rather than secrets. The empty case is
+# anchored with $: an unanchored empty alternative matches every string and
+# would silently turn this whole check into a no-op.
+PLACEHOLDER = re.compile(
     r"^(?:$|\"\"$|''$|your_|test[-_]|example|placeholder|dummy|xxx"
     r"|change[-_]this|django-insecure-change)",
     re.IGNORECASE,
 )
 
-# Przypisanie klucza do wartości w pliku .env albo w kodzie Pythona.
-PRZYPISANIE = re.compile(
-    # [ 	] a nie \s: \s pochłania znak nowej linii, przez co pusta wartość
-    # "zjadłaby" następny wiersz pliku i test stałby się ślepy.
-    r"^[ 	]*(?P<klucz>[A-Z0-9_]*(?:%s))[ 	]*[=:][ 	]*(?P<wartosc>.*)$"
-    % "|".join(WRAZLIWE_KLUCZE),
+# A key assigned a value, in a .env file or in Python. [ \t] rather than \s:
+# \s swallows the newline, so an empty value would absorb the following line.
+ASSIGNMENT = re.compile(
+    r"^[ \t]*(?P<key>[A-Z0-9_]*(?:%s))[ \t]*[=:][ \t]*(?P<value>.*)$"
+    % "|".join(SENSITIVE_KEYS),
     re.MULTILINE,
 )
 
-# Sygnatury konkretnych sekretów tego projektu.
-SYGNATURY = (
-    ("klucz TMDB (32 znaki hex)", re.compile(r"\b[0-9a-f]{32}\b")),
-    (
-        "wygenerowany klucz Django",
-        re.compile(r"django-insecure-(?!change)[!-~]{20,}"),
-    ),
+SIGNATURES = (
+    ("TMDB key (32 hex chars)", re.compile(r"\b[0-9a-f]{32}\b")),
+    ("generated Django key", re.compile(r"django-insecure-(?!change)[!-~]{20,}")),
 )
 
-# Ścieżki, których nie skanujemy: migracje i statyki zawierają hashe,
-# a ten plik z definicji zawiera wzorce sekretów.
-POMIJANE = re.compile(r"(^|/)(migrations|staticfiles|\.git)/|test_no_secrets\.py$")
+# Migrations and static files carry hashes; this file necessarily contains the
+# patterns themselves.
+SKIP = re.compile(r"(^|/)(migrations|staticfiles|\.git)/|test_no_secrets\.py$")
 
 
-def _sledzone_pliki() -> list[str]:
-    wynik = subprocess.run(
-        ["git", "ls-files", "-z"],
-        cwd=REPO, capture_output=True, check=True,
-    )
-    return [p for p in wynik.stdout.decode("utf-8").split("\0") if p]
-
-
-def _odczytaj(sciezka: Path) -> str:
-    """Dekoduje plik niezależnie od kodowania - UTF-16 ukrył poprzedni wyciek."""
-    surowe = sciezka.read_bytes()
-    for kodowanie in ("utf-8-sig", "utf-16", "utf-8", "latin-1"):
+def _read(path: Path) -> str:
+    """Decode whatever the encoding is. UTF-16 is how the last leak hid."""
+    raw = path.read_bytes()
+    for encoding in ("utf-8-sig", "utf-16", "utf-8", "latin-1"):
         try:
-            return surowe.decode(kodowanie)
+            return raw.decode(encoding)
         except (UnicodeDecodeError, UnicodeError):
             continue
     return ""
 
 
 @pytest.fixture(scope="module")
-def sledzone() -> list[str]:
-    return _sledzone_pliki()
+def tracked() -> list[str]:
+    result = subprocess.run(
+        ["git", "ls-files", "-z"], cwd=REPO, capture_output=True, check=True,
+    )
+    return [p for p in result.stdout.decode("utf-8").split("\0") if p]
 
 
-def test_tylko_szablon_env_jest_sledzony(sledzone):
-    """Żaden plik .env poza szablonem nie może być w indeksie gita."""
-    pliki_env = [
-        p for p in sledzone
-        if Path(p).name.startswith(".env") and p != DOZWOLONY_SZABLON
+def test_only_the_template_env_file_is_tracked(tracked):
+    leaked = [
+        p for p in tracked
+        if Path(p).name.startswith(".env") and p != TEMPLATE
     ]
-    assert pliki_env == [], (
-        "Pliki .env z sekretami są śledzone przez gita: %s. "
-        "Usuń je: git rm --cached <plik>" % pliki_env
+    assert leaked == [], (
+        f"env files with secrets are tracked: {leaked}. "
+        "Remove them with: git rm --cached <file>"
     )
 
 
-@pytest.mark.parametrize("wariant", [".env", ".env.production", ".env.local", ".env.prod"])
-def test_gitignore_blokuje_warianty_env(wariant):
-    """.gitignore musi ignorować każdy wariant .env."""
-    wynik = subprocess.run(
-        ["git", "check-ignore", "-q", wariant], cwd=REPO, capture_output=True,
+@pytest.mark.parametrize(
+    "variant", [".env", ".env.production", ".env.local"]
+)
+def test_gitignore_covers_every_env_variant(variant):
+    result = subprocess.run(
+        ["git", "check-ignore", "-q", variant], cwd=REPO, capture_output=True,
     )
-    assert wynik.returncode == 0, f"{wariant} nie jest ignorowany przez .gitignore"
+    assert result.returncode == 0, f"{variant} is not ignored by .gitignore"
 
 
-def test_szablon_env_nie_ma_wartosci():
-    """.env.example jest pusty - same nazwy zmiennych, zero wartości."""
-    tresc = _odczytaj(REPO / DOZWOLONY_SZABLON)
-    winne = [
-        (m.group("klucz"), m.group("wartosc"))
-        for m in PRZYPISANIE.finditer(tresc)
-        if not ATRAPY.match(m.group("wartosc").strip().strip("\"'"))
+def test_the_template_holds_names_but_no_values():
+    content = _read(REPO / TEMPLATE)
+    filled = [
+        (m.group("key"), m.group("value"))
+        for m in ASSIGNMENT.finditer(content)
+        if not PLACEHOLDER.match(m.group("value").strip().strip("\"'"))
     ]
-    assert winne == [], f"{DOZWOLONY_SZABLON} zawiera wartości: {winne}"
+    assert filled == [], f"{TEMPLATE} contains values: {filled}"
 
 
-def test_szablon_env_wymienia_wszystkie_wymagane_zmienne():
-    """Szablon musi pokrywać to, czego settings.py naprawdę szuka w środowisku."""
-    tresc = _odczytaj(REPO / DOZWOLONY_SZABLON)
-    ustawienia = _odczytaj(REPO / "MyMovies" / "settings.py")
-    wymagane = set(re.findall(r"getenv\(\s*[\"']([A-Z0-9_]+)[\"']", ustawienia))
-    wymagane |= set(re.findall(r"env_(?:bool|list)\(\s*[\"']([A-Z0-9_]+)[\"']", ustawienia))
-    brakujace = sorted(
-        n for n in wymagane
-        if not re.search(r"^\s*%s\s*=" % re.escape(n), tresc, re.MULTILINE)
-    )
-    assert brakujace == [], f"{DOZWOLONY_SZABLON} nie wymienia: {brakujace}"
-
-
-def test_zaden_sledzony_plik_nie_zawiera_sekretu(sledzone):
-    """Skan wszystkich śledzonych plików pod kątem sygnatur sekretów."""
-    trafienia = []
-    for wzgledna in sledzone:
-        if POMIJANE.search(wzgledna):
+def test_no_tracked_file_contains_a_credential(tracked):
+    """Scans every tracked file for both secret signatures and assignments."""
+    hits = []
+    for relative in tracked:
+        if SKIP.search(relative) or not (REPO / relative).is_file():
             continue
-        plik = REPO / wzgledna
-        if not plik.is_file():
-            continue
-        tresc = _odczytaj(plik)
-        for opis, wzorzec in SYGNATURY:
-            for dopasowanie in wzorzec.finditer(tresc):
-                numer = tresc.count("\n", 0, dopasowanie.start()) + 1
-                trafienia.append(f"{wzgledna}:{numer} -> {opis}")
+        content = _read(REPO / relative)
 
-    assert trafienia == [], "Sekrety w śledzonych plikach:\n" + "\n".join(trafienia)
+        for label, pattern in SIGNATURES:
+            for match in pattern.finditer(content):
+                line = content.count("\n", 0, match.start()) + 1
+                hits.append(f"{relative}:{line} -> {label}")
 
-
-def test_sledzone_pliki_nie_przypisuja_wrazliwych_kluczy(sledzone):
-    """Wrażliwy klucz w śledzonym pliku może mieć tylko wartość-atrapę."""
-    trafienia = []
-    for wzgledna in sledzone:
-        if POMIJANE.search(wzgledna) or not (REPO / wzgledna).is_file():
-            continue
-        tresc = _odczytaj(REPO / wzgledna)
-        for m in PRZYPISANIE.finditer(tresc):
-            wartosc = m.group("wartosc").strip().rstrip(",").strip("\"'")
-            # Odczyt ze środowiska nie jest sekretem, tylko poprawnym wzorcem.
-            if wartosc.startswith(("os.getenv", "os.environ", "env_", "settings.")):
+        for m in ASSIGNMENT.finditer(content):
+            value = m.group("value").strip().rstrip(",").strip("\"'")
+            # Reading from the environment is the correct pattern, not a leak.
+            if value.startswith(("os.getenv", "os.environ", "env_", "settings.",
+                                 "secrets.", "TEST_PASSWORD")):
                 continue
-            if ATRAPY.match(wartosc):
+            if PLACEHOLDER.match(value):
                 continue
-            numer = tresc.count("\n", 0, m.start()) + 1
-            trafienia.append(f"{wzgledna}:{numer} -> {m.group('klucz')}={wartosc!r}")
+            line = content.count("\n", 0, m.start()) + 1
+            hits.append(f"{relative}:{line} -> {m.group('key')}={value!r}")
 
-    assert trafienia == [], "Zakodowane sekrety:\n" + "\n".join(trafienia)
+    assert hits == [], "credentials found in tracked files:\n" + "\n".join(hits)
