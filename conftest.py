@@ -1,4 +1,6 @@
-"""Wspólne fixture'y dla całego zestawu testów."""
+"""Shared fixtures for the test suite."""
+import secrets
+
 import pytest
 import requests
 from django.contrib.auth.models import User
@@ -6,26 +8,29 @@ from django.test import Client
 
 from Movies.models import Movie, Tag
 
-PASSWORD = "test-pass-123"
+# Generated per run rather than hardcoded. A literal password here is a real
+# credential as far as any secret scanner is concerned, and this one has no
+# reason to be stable across runs.
+TEST_PASSWORD = secrets.token_urlsafe(16)
 
 
-# --- użytkownicy i klienci HTTP ----------------------------------------
+# --- users and HTTP clients ---------------------------------------------
 
 @pytest.fixture
 def password():
-    return PASSWORD
+    return TEST_PASSWORD
 
 
 @pytest.fixture
 def user(db):
-    """Właściciel filmów - główny bohater większości testów."""
-    return User.objects.create_user(username="owner", password=PASSWORD)
+    """Owner of the movies, the subject of most tests."""
+    return User.objects.create_user(username="owner", password=TEST_PASSWORD)
 
 
 @pytest.fixture
 def other_user(db):
-    """Inny użytkownik - do sprawdzania izolacji danych między kontami."""
-    return User.objects.create_user(username="intruder", password=PASSWORD)
+    """A second account, used to prove data is isolated per owner."""
+    return User.objects.create_user(username="intruder", password=TEST_PASSWORD)
 
 
 @pytest.fixture
@@ -41,12 +46,7 @@ def other_client(other_user):
     return c
 
 
-# --- dane domenowe ------------------------------------------------------
-
-@pytest.fixture
-def tag(db):
-    return Tag.objects.create(name="sci-fi")
-
+# --- domain data --------------------------------------------------------
 
 @pytest.fixture
 def movie(user):
@@ -60,22 +60,22 @@ def movie(user):
 
 @pytest.fixture
 def make_movie(db):
-    """Fabryka filmów: make_movie(user, title="X", status="watched")."""
+    """Movie factory: make_movie(user, title="X", status="watched")."""
     counter = {"n": 0}
 
     def _make(owner, **kwargs):
         counter["n"] += 1
-        kwargs.setdefault("title", f"Film {counter['n']}")
+        kwargs.setdefault("title", f"Movie {counter['n']}")
         kwargs.setdefault("status", "to_watch")
         return Movie.objects.create(owner=owner, **kwargs)
 
     return _make
 
 
-# --- mockowanie TMDB ----------------------------------------------------
+# --- TMDB mocking -------------------------------------------------------
 
 class FakeResponse:
-    """Minimalny odpowiednik requests.Response na potrzeby testów."""
+    """Minimal stand-in for requests.Response."""
 
     def __init__(self, payload, status_code=200):
         self._payload = payload
@@ -91,12 +91,12 @@ class FakeResponse:
 
 @pytest.fixture
 def mock_tmdb(monkeypatch):
-    """Podmienia requests.get w Movies.views i zapisuje wykonane wywołania.
+    """Replace requests.get in Movies.views and record the calls made.
 
-    Użycie:
+    Usage:
         calls = mock_tmdb({"results": [...]})
         ...
-        assert len(calls) == 1
+        assert calls[0]["params"]["query"] == "blade"
     """
     def _install(payload, status_code=200):
         calls = []
@@ -113,8 +113,8 @@ def mock_tmdb(monkeypatch):
 
 @pytest.fixture
 def no_network(monkeypatch):
-    """Wysadza test, jeśli kod mimo wszystko spróbuje wyjść do sieci."""
+    """Fail the test if the code tries to reach the network anyway."""
     def boom(*args, **kwargs):
-        raise AssertionError("Test próbował wykonać prawdziwe żądanie HTTP")
+        raise AssertionError("the test attempted a real HTTP request")
 
     monkeypatch.setattr("Movies.views.requests.get", boom)
