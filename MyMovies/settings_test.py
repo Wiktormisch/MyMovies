@@ -1,10 +1,12 @@
-"""Ustawienia używane wyłącznie przez testy.
+"""Settings used by the test suite only.
 
-Importuje produkcyjne settings i nadpisuje to, co w testach musi być
-deterministyczne i szybkie. Dzięki temu testy:
-  * nie dotykają prawdziwego db.sqlite3 (baza w pamięci),
-  * nie zależą od obecności pliku .env (SECRET_KEY / TMDB_API_KEY na sztywno),
-  * nie wołają prawdziwego API TMDB (klucz jest atrapą, a requests i tak mockujemy).
+Imports the real settings and overrides what has to be deterministic and fast
+under test, so that the suite:
+  * never touches the real db.sqlite3 (the database is in memory),
+  * does not depend on a .env file being present (SECRET_KEY / TMDB_API_KEY
+    are fixed here),
+  * never calls the real TMDB API (the key is a dummy, and requests is mocked
+    anyway).
 """
 from .settings import *  # noqa: F401,F403
 
@@ -17,8 +19,8 @@ DATABASES = {
     }
 }
 
-# Domyślny hasher (PBKDF2) celowo spowalnia logowanie - w testach to zbędny koszt.
+# The default hasher (PBKDF2) is deliberately slow; in tests that is dead cost.
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
-# Atrapa - żaden test nie powinien wyjść do sieci.
+# A dummy: no test should ever reach the network.
 TMDB_API_KEY = "test-api-key"
