@@ -1,194 +1,125 @@
 # 🎬 MyMovies
 
-MyMovies is a simple web application built with Django that helps users organize and track.
+A personal movie library built with Django. Add movies by hand or from the TMDB database, mark them as watched or to-watch, rate and tag them, then filter your collection.
 
-The main goal of the project is to eliminate the frustration of endlessly scrolling through streaming platforms and instead provide a personal, structured movie library.
+**Live demo:** [wiktormischker.dev/app](https://wiktormischker.dev/app) (login: `demo`, password: `demo1`, registration disabled)
 
----
-
-## 🌐 Live Demo
-
-**Try the application now:** [MyMovies Demo](https://wiktormischker.dev/app)
-
-> **Demo Account**
-> - Username: `demo`
-> - Password: `demo1`
-> - Note: This is a demo version with limited functionality. Registration is disabled.
+**Author:** Wiktor Mischker · [GitHub](https://github.com/Wiktormisch)
 
 ---
 
-## 🚀 Features
+## What this project shows
 
-- 👤 User authentication (login/logout)
-- 🎬 Add movies to personal library
-- 📌 Mark movies as:
-  - Watched
-  - To Watch
-- ⭐ Rate movies (1-10 scale)
-- 🏷️ Add and organize movies with tags
-- 📋 Filter movies by status and tags
-- 🔍 Search movies using TMDB API
-- 📊 Personal movie statistics and collection management
+- **Working, deployed app.** Runs on a VPS in Docker behind Gunicorn, not just on localhost.
+- **Tested.** A pytest suite that runs in under a second. Views, access control, forms, the TMDB integration (mocked, no network) and a secret-scanning gate are all covered.
+- **Secure by default.** Secrets live in `.env`, never in the repo. A test fails the build if a real key or a committed `.env` shows up. Every view requires login and users only ever see their own data.
+- **Git discipline.** 80+ commits, feature branches merged into `dev`, then `main` through pull requests. Most commit messages use `feat:`, `fix:`, `test:`, `docs:` prefixes.
+- **Third-party API integration.** Movie search and import from [TMDB](https://www.themoviedb.org/), with error handling so an API outage never breaks the page.
 
 ---
 
-## 🏗️ Tech Stack
+## Features
 
-### Backend
-- **Python 3.14** - Programming language
-- **Django 6.0.4** - Web framework
-- **SQLite 3** - Database (can be upgraded to PostgreSQL for production)
-- **Gunicorn 21.2.0** - WSGI application server
-- **WhiteNoise 6.5.0** - Static files serving
-
-### Frontend
-- **HTML5** - Markup
-- **CSS3** - Styling
-- **Bootstrap 5** - UI framework (via django-bootstrap5 26.2)
-- **JavaScript** - Client-side interactivity
-
-### APIs & Libraries
-- **TMDB API** - Movie data and search
-- **Requests 2.33.1** - HTTP library
-- **Django REST Framework 3.17.1** - REST API toolkit
-- **python-dotenv 1.2.2** - Environment variables management
-
-### Deployment & DevOps
-- **Docker** - Containerization
-- **Docker Compose** - Multi-container orchestration
-- **Git** - Version control
+- 👤 Login / logout (Django auth)
+- 🎬 Add, edit and delete movies in a personal library
+- 🔍 Search TMDB and import a movie with one click (title, overview, year, poster)
+- 📌 Status: **Watched** / **To Watch**
+- ⭐ Rating 1 to 10
+- 🏷️ Tags, many per movie
+- 📋 Filter by status, tags and title search
+- 🔒 Per-user data isolation, 50 movies per account (demo limit)
 
 ---
 
-## 🎯 Key Features Implementation
+## Tech stack
 
-### Security
-- User authentication with Django's built-in system
-- CSRF protection enabled
-- Secure session handling
-- Environment variables for sensitive data
-
-### Performance
-- WhiteNoise middleware for efficient static file serving
-- Compressed static files in production
-- Optimized database queries with Django ORM
-- Connection pooling support
-
-### Scalability
-- Movie limit (50 per user) to prevent abuse
-- User-based data isolation
-- Ready for PostgreSQL upgrade
-- Docker-based deployment for easy scaling
+| Layer | Choice |
+|---|---|
+| Language | Python 3.13 |
+| Framework | Django 6.0 |
+| Database | SQLite (demo scale; swap for PostgreSQL via `DATABASES`) |
+| Frontend | Django templates, Bootstrap 5, Font Awesome |
+| External API | TMDB (via `requests`) |
+| Testing | pytest, pytest-django, pytest-cov |
+| Deployment | Docker, Docker Compose, Gunicorn, WhiteNoise |
 
 ---
 
-## 🌳 Git Workflow
+## Run it locally
 
-This project follows a **Feature Branch Workflow**:
-- `main` - Production-ready code
-- `dev` - Development branch
-- Feature branches for new features
+Requires Python 3.13+ and a free [TMDB API key](https://www.themoviedb.org/settings/api).
 
----
+```bash
+git clone https://github.com/Wiktormisch/MyMovies.git
+cd MyMovies
+python -m venv env
+source env/bin/activate        # Windows: env\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env           # then set SECRET_KEY, TMDB_API_KEY and DEBUG=True
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
 
-## 🐳 Docker Deployment
+Open http://127.0.0.1:8000 and log in with the superuser you created.
 
-The app is production-ready and containerized for easy deployment.
+### With Docker
 
-### Local Development
-1. Copy `.env.example` to `.env` and fill in your own `SECRET_KEY` and `TMDB_API_KEY`
-2. Build the image:
-   ```bash
-   docker compose build
-   ```
-3. Run the container:
-   ```bash
-   docker compose up
-   ```
-4. Open the app at `http://localhost:8000`
+```bash
+cp .env.example .env           # fill in SECRET_KEY and TMDB_API_KEY
+docker compose up --build
+```
 
-### Limits & Constraints
-- Maximum 50 movies per user
-- Registration is disabled for demo purposes
-- SQLite database (suitable for demo; upgrade to PostgreSQL for production)
+The app listens on http://localhost:20165.
 
 ---
 
-## 🚀 Running Locally (Without Docker)
+## Run the tests
 
-### Prerequisites
-- Python 3.14+
-- pip
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
 
-### Setup
-1. Create and activate virtual environment:
-   ```bash
-   python -m venv env
-   source env/bin/activate  # On Windows: env\Scripts\activate
-   ```
-
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Set environment variables:
-   ```bash
-   cp .env.example .env
-   # Edit .env with DEBUG=True for local development
-   ```
-
-4. Run migrations:
-   ```bash
-   python manage.py migrate
-   ```
-
-5. Create superuser (optional):
-   ```bash
-   python manage.py createsuperuser
-   ```
-
-6. Start development server:
-   ```bash
-   python manage.py runserver
-   ```
+All tests are offline and deterministic. The TMDB client is mocked, so the suite never touches the network.
 
 ---
 
-## 📦 Project Structure
+## Project structure
 
 ```
 MyMovies/
-├── Movies/                 # Main app
-│   ├── models.py          # Movie, Tag models
-│   ├── views.py           # Request handlers
-│   ├── forms.py           # Django forms
-│   ├── templates/         # HTML templates
-│   ├── static/            # CSS, JavaScript
-│   └── migrations/        # Database migrations
-├── MyMovies/              # Project settings
-│   ├── settings.py        # Configuration
-│   ├── urls.py            # URL routing
-│   └── wsgi.py            # WSGI application
-├── docker-compose.yml     # Docker configuration
-├── Dockerfile             # Container definition
-├── requirements.txt       # Python dependencies
-└── manage.py              # Django management
+├── Movies/                 # The app: models, views, forms, templates, static files
+│   ├── models.py          # Movie, Tag
+│   ├── views.py           # Library CRUD, filtering, TMDB search and import
+│   └── templates/         # Bootstrap 5 UI
+├── MyMovies/              # Django project: settings, urls, wsgi
+├── tests/                 # pytest suite (auth, movies, TMDB, secret scan)
+├── conftest.py            # Shared fixtures, TMDB mock
+├── docker-compose.yml
+├── Dockerfile
+└── requirements.txt
 ```
 
 ---
 
-## 📝 License
+## Git workflow
 
-This project is open source. Feel free to use, modify, and distribute as needed.
-
----
-
-## 👨‍💻 Author
-
-Created by **Wiktor**
+- `main`: what runs on the demo server
+- `dev`: integration branch
+- `feature/*`: one branch per feature, merged through a pull request
 
 ---
 
-**Happy Movie Tracking!** 🎬🍿
+## Roadmap
 
+- Registration behind a feature flag (currently off for the demo)
+- Password reset by email
+- PostgreSQL in production
+- Recommendations based on ratings and tags
+
+---
+
+## License
+
+MIT
