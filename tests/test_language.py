@@ -9,7 +9,11 @@ from django.urls import reverse
 from Movies.models import Movie
 
 ROOT = Path(__file__).resolve().parent.parent
-POLISH_LETTERS = re.compile(r"[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]")
+# Written as escapes so this file passes its own scan.
+POLISH_LETTERS = re.compile(
+    "[\u0105\u0107\u0119\u0142\u0144\u00f3\u015b\u017a\u017c"
+    "\u0104\u0106\u0118\u0141\u0143\u00d3\u015a\u0179\u017b]"
+)
 # Source files that end up in front of a user or a reviewer.
 SOURCE_SUFFIXES = {".py", ".html", ".js", ".css"}
 
