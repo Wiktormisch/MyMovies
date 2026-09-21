@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %}Wyszukiwarka Filmów - MyMovies{% endblock %}
+{% block title %}Movie Search - MyMovies{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <!-- Nagłówek -->
+            <!-- Header -->
             <div class="text-center mb-5">
                 <h1 class="display-4 mb-3">
-                    <i class="fas fa-search text-primary"></i> Wyszukiwarka Filmów
+                    <i class="fas fa-search text-primary"></i> Movie Search
                 </h1>
-                <p class="lead text-muted">Znajdź filmy w bazie TMDB i dodaj do swojej kolekcji</p>
+                <p class="lead text-muted">Find movies in the TMDB database and add them to your collection</p>
             </div>
 
-            <!-- Formularz -->
+            <!-- Form -->
             <div class="card shadow mb-4">
                 <div class="card-body p-4">
                     <form method="get" action="{% url 'search' %}" id="searchForm">
@@ -23,24 +23,24 @@
                                 type="text" 
                                 class="form-control" 
                                 name="q" 
-                                placeholder="Wpisz tytuł filmu..." 
+                                placeholder="Enter a movie title..." 
                                 value="{{ query }}"
                                 required
                                 autocomplete="off"
                             >
                             <button class="btn btn-primary" type="submit" id="searchBtn">
-                                <i class="fas fa-search"></i> Szukaj
+                                <i class="fas fa-search"></i> Search
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <!-- Wyniki -->
+            <!-- Results -->
             {% if results %}
             <div class="mb-3">
                 <h4 class="text-muted">
-                    <i class="fas fa-list"></i> Znalezione filmy ({{ results|length }})
+                    <i class="fas fa-list"></i> Movies found ({{ results|length }})
                 </h4>
             </div>
 
@@ -92,7 +92,7 @@
 
                         <div class="card-footer bg-white">
                             <a href="{% url 'add_movie_api' movie.id %}" class="btn btn-success btn-sm w-100">
-                                <i class="fas fa-plus"></i> Dodaj do bazy
+                                <i class="fas fa-plus"></i> Add to Library
                             </a>
                         </div>
                     </div>
@@ -101,21 +101,21 @@
             </div>
 
             {% elif query %}
-            <!-- Brak wyników -->
+            <!-- No results -->
             <div class="text-center py-5">
                 <div class="mb-4">
                     <i class="fas fa-search fa-4x text-muted"></i>
                 </div>
-                <h4 class="text-muted">Brak wyników</h4>
+                <h4 class="text-muted">No results</h4>
                 <p class="text-muted mb-4">
-                    Nie znaleziono filmów dla zapytania "<strong>{{ query }}</strong>"
+                    No movies found for "<strong>{{ query }}</strong>"
                 </p>
                 <div class="d-flex justify-content-center gap-2">
                     <a href="{% url 'search' %}" class="btn btn-outline-primary">
-                        <i class="fas fa-redo"></i> Nowe wyszukiwanie
+                        <i class="fas fa-redo"></i> New Search
                     </a>
                     <a href="{% url 'movie_list' %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-home"></i> Moje filmy
+                        <i class="fas fa-home"></i> My Movies
                     </a>
                 </div>
             </div>

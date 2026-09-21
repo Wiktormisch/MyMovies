@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}Edycja filmu: {{ movie.title }}{% endblock %}
+{% block title %}Edit Movie: {{ movie.title }}{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -10,7 +10,7 @@
             <div class="card shadow">
                 <div class="card-header bg-warning text-dark">
                     <h1 class="h4 mb-0">
-                        <i class="fas fa-edit"></i> Edycja filmu: {{ movie.title }}
+                        <i class="fas fa-edit"></i> Edit Movie: {{ movie.title }}
                     </h1>
                 </div>
                 
@@ -31,7 +31,7 @@
                                 {{ field|add_class:"form-control"|attr:"rows:4" }}
                             {% elif field.name == 'tags' %}
                                 {{ field|add_class:"form-select"|attr:"size:4" }}
-                                <small class="text-muted">Przytrzymaj Ctrl, aby wybrać wiele tagów</small>
+                                <small class="text-muted">Hold Ctrl to select multiple tags</small>
                             {% elif field.field.widget.input_type == 'select' %}
                                 {{ field|add_class:"form-select" }}
                             {% else %}
@@ -54,10 +54,10 @@
                     <div class="card-footer bg-light">
                         <div class="d-flex gap-2 justify-content-end">
                             <a href="{% url 'movie_detail' movie.pk %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-times"></i> Anuluj
+                                <i class="fas fa-times"></i> Cancel
                             </a>
                             <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-save"></i> Zapisz zmiany
+                                <i class="fas fa-save"></i> Save Changes
                             </button>
                         </div>
                     </div>
@@ -65,7 +65,7 @@
             </div>
             <div class="alert alert-info mt-3">
                 <h6 class="d-flex justify-content-center alert-heading">
-                    <i class="fas fa-info-circle"></i> <strong> Pola oznaczone <span class="text-danger">*</span> są wymagane</strong>
+                    <i class="fas fa-info-circle"></i> <strong> Fields marked with <span class="text-danger">*</span> are required</strong>
                 </h6>
             </div>
         </div>
