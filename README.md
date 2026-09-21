@@ -96,7 +96,7 @@ This project follows a **Feature Branch Workflow**:
 The app is production-ready and containerized for easy deployment.
 
 ### Local Development
-1. Copy `.env.example` to `.env` (will use local defaults)
+1. Copy `.env.example` to `.env` and fill in your own `SECRET_KEY` and `TMDB_API_KEY`
 2. Build the image:
    ```bash
    docker compose build
