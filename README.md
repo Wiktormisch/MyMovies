@@ -8,7 +8,7 @@ The main goal of the project is to eliminate the frustration of endlessly scroll
 
 ## 🌐 Live Demo
 
-**Try the application now:** [MyMovies Demo](http://jack165.mikrus.xyz:20165/)
+**Try the application now:** [MyMovies Demo](https://wiktormischker.dev/app)
 
 > **Demo Account**
 > - Username: `demo`
@@ -106,34 +106,6 @@ The app is production-ready and containerized for easy deployment.
    docker compose up
    ```
 4. Open the app at `http://localhost:8000`
-
-### Production on VPS
-1. Upload your project files to the VPS
-2. Create the `.env` file on the server (it is never committed):
-   ```bash
-   cp .env.example .env
-   ```
-3. Fill in `.env` with the production values: a freshly generated `SECRET_KEY`,
-   your `TMDB_API_KEY`, `DEBUG=False`, and your own `ALLOWED_HOSTS` /
-   `CSRF_TRUSTED_ORIGINS`.
-4. Build and start:
-   ```bash
-   docker compose build
-   docker compose up -d
-   ```
-5. Access the app at `http://jack165.mikrus.xyz:20165`
-
-### Environment Variables
-- `SECRET_KEY` - Django secret key for cryptographic operations. Generate a fresh
-  one per environment and never reuse or commit it:
-  `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
-- `TMDB_API_KEY` - API key for TMDB movie data, from https://www.themoviedb.org/settings/api
-
-Real values live only in `.env`, which is git-ignored. `.env.example` is the
-committed template and must never contain a real credential.
-- `DEBUG` - Django debug mode (False for production)
-- `ALLOWED_HOSTS` - Comma-separated allowed hostnames
-- `CSRF_TRUSTED_ORIGINS` - CSRF-trusted origins
 
 ### Limits & Constraints
 - Maximum 50 movies per user
