@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,13 +28,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'movie_list' %}">Moje filmy</a>
+                        <a class="nav-link" href="{% url 'movie_list' %}">My Movies</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'add_movie' %}">Dodaj film</a>
+                        <a class="nav-link" href="{% url 'add_movie' %}">Add Movie</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'search' %}">Wyszukaj z Bazy</a>
+                        <a class="nav-link" href="{% url 'search' %}">Search TMDB</a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
@@ -46,17 +46,17 @@
                             <li>
                                 <form method="post" action="{% url 'logout' %}" class="d-inline">
                                     {% csrf_token %}
-                                    <button type="submit" class="dropdown-item">Wyloguj</button>
+                                    <button type="submit" class="dropdown-item">Log out</button>
                                 </form>
                             </li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Zaloguj się</a>
+                        <a class="nav-link" href="{% url 'login' %}">Log in</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Rejestracja</a>
+                        <a class="nav-link" href="{% url 'register' %}">Register</a>
                     </li>
                     {% endif %}
                 </ul>

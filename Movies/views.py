@@ -32,12 +32,12 @@ def movie_list(request):
 
 @login_required
 def add_movie(request):
-    # Sprawdź limit filmów (max 50 per użytkownik)
+    # Enforce the per-user movie limit (max 50)
     movie_count = Movie.objects.filter(owner=request.user).count()
     if movie_count >= 50:
         return render(request, "movies/add_movie.html", {
             "form": MovieForm(),
-            "error": "Osiągnąłeś limit 50 filmów. Usuń niektóre filmy, aby dodać nowe."
+            "error": "You have reached the limit of 50 movies. Delete some movies to add new ones."
         })
 
     if request.method == "POST":
@@ -93,16 +93,16 @@ def movie_edit(request, pk):
 
 
 def register(request):
-    # Rejestracja jest wyłączona w wersji demo.
+    # Registration is disabled in the demo version.
     form = UserCreationForm()
     registration_disabled = True
     registration_message = (
-        "Rejestracja jest tymczasowo wyłączona. "
-        "Użyj istniejącego konta demo, aby się zalogować."
+        "Registration is temporarily disabled. "
+        "Use the existing demo account to log in."
     )
 
     if request.method == "POST":
-        # Jeśli ktoś wysyła formularz ręcznie, zawsze pokażemy komunikat.
+        # If someone submits the form manually, always show the notice.
         return render(request, "registration/register.html", {
             "form": form,
             "registration_disabled": registration_disabled,
@@ -128,7 +128,7 @@ def search_movies_api(request):
         params = {
             "api_key": api_key,
             "query": query,
-            "language": "pl-PL"
+            "language": "en-US"
         }
 
         try:
@@ -136,7 +136,7 @@ def search_movies_api(request):
             response.raise_for_status()
             results = response.json()["results"]
         except Exception as e:
-            print(f"Bląd API: {e}")
+            print(f"API error: {e}")
 
     return render(request, "movies/search_api.html", {
         "results": results,
@@ -151,7 +151,7 @@ def add_movie_api(request, tmdb_id):
 
     params = {
         "api_key": api_key,
-        "language": "pl-PL"
+        "language": "en-US"
     }
 
     try:
@@ -174,5 +174,5 @@ def add_movie_api(request, tmdb_id):
             return redirect("movie_list")
 
     except Exception as e:
-        print(f"Blad dodawnia filmu: {e}")
+        print(f"Error adding movie: {e}")
         return redirect("movie_list")

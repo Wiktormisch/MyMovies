@@ -39,15 +39,15 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env_bool("DEBUG", False)
 
-# Wyłącz SSL redirect (bo HTTP, nie HTTPS)
+# SSL redirect disabled (served over HTTP, not HTTPS)
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
-# Zmienna ALLOWED_HOSTS przyjmowana z .env
+# ALLOWED_HOSTS is read from .env
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1")
 
-# Dodaj trusted origins dla CSRF z .env
+# CSRF trusted origins are read from .env
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 
 

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ movie.title }} - Szczegóły{% endblock %}
+{% block title %}{{ movie.title }} - Details{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -35,15 +35,15 @@
                     {% endif %}
                     
                     {% if movie.status == "watched" %}
-                    <span class="badge bg-success fs-6"><i class="fas fa-check"></i> Obejrzany</span>
+                    <span class="badge bg-success fs-6"><i class="fas fa-check"></i> Watched</span>
                     {% else %}
-                    <span class="badge bg-info fs-6"><i class="fas fa-clock"></i> Do obejrzenia</span>
+                    <span class="badge bg-info fs-6"><i class="fas fa-clock"></i> To Watch</span>
                     {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- Szczegóły -->
+        <!-- Details -->
         <div class="col-lg-8">
             <div class="card shadow">
                 <div class="card-header bg-dark text-white">
@@ -51,12 +51,12 @@
                 </div>
                 
                 <div class="card-body">
-                    <!-- Podstawowe info -->
+                    <!-- Basic info -->
                     <div class="row mb-4">
                         <div class="col-sm-6">
                             {% if movie.director %}
                             <p class="mb-2">
-                                <strong><i class="fas fa-video text-primary"></i> Reżyser:</strong><br>
+                                <strong><i class="fas fa-video text-primary"></i> Director:</strong><br>
                                 {{ movie.director }}
                             </p>
                             {% endif %}
@@ -64,28 +64,28 @@
                         <div class="col-sm-6">
                             {% if movie.year %}
                             <p class="mb-2">
-                                <strong><i class="fas fa-calendar text-primary"></i> Rok wydania:</strong><br>
+                                <strong><i class="fas fa-calendar text-primary"></i> Release year:</strong><br>
                                 {{ movie.year }}
                             </p>
                             {% endif %}
                         </div>
                     </div>
 
-                    <!-- Opis -->
+                    <!-- Description -->
                     {% if movie.description %}
                     <div class="mb-4">
                         <h5 class="text-primary mb-3">
-                            <i class="fas fa-align-left"></i> Opis
+                            <i class="fas fa-align-left"></i> Description
                         </h5>
                         <p class="lead">{{ movie.description }}</p>
                     </div>
                     {% endif %}
 
-                    <!-- Tagi -->
+                    <!-- Tags -->
                     {% if movie.tags.all %}
                     <div class="mb-4">
                         <h5 class="text-primary mb-3">
-                            <i class="fas fa-tags"></i> Tagi
+                            <i class="fas fa-tags"></i> Tags
                         </h5>
                         <div>
                             {% for tag in movie.tags.all %}
@@ -95,18 +95,18 @@
                     </div>
                     {% endif %}
 
-                    <!-- Przyciski -->
+                    <!-- Buttons -->
                     <div class="d-flex gap-2 flex-wrap">
                         <a href="{% url 'movie_edit' movie.pk %}" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Edytuj film
+                            <i class="fas fa-edit"></i> Edit Movie
                         </a>
                         
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                            <i class="fas fa-trash"></i> Usuń film
+                            <i class="fas fa-trash"></i> Delete Movie
                         </button>
                         
                         <a href="{% url 'movie_list' %}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Powrót do listy
+                            <i class="fas fa-arrow-left"></i> Back to List
                         </a>
                     </div>
                 </div>
@@ -115,23 +115,23 @@
     </div>
 </div>
 
-<!-- potwierdzenie usunięcia -->
+<!-- delete confirmation -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Potwierdź usunięcie</h5>
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Czy na pewno chcesz usunąć film <strong>"{{ movie.title }}"</strong>?</p>
-                <p class="text-danger mb-0">Ta akcja jest nieodwracalna.</p>
+                <p>Are you sure you want to delete <strong>"{{ movie.title }}"</strong>?</p>
+                <p class="text-danger mb-0">This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form method="post" action="{% url 'movie_delete' movie.pk %}" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Usuń film</button>
+                    <button type="submit" class="btn btn-danger">Delete Movie</button>
                 </form>
             </div>
         </div>
